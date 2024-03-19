@@ -2,26 +2,28 @@ package dbcore
 
 import (
 	"database/sql"
-	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func ConnectMysql(host, port, username, password, dbName string) (*sql.DB, error) {
-	// Construct the connection string
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, host, port, dbName)
+func (d *database) setConnection(host, port, username, password, dbName string) {
+	d.host = host
+	d.port = port
+	d.username = username
+	d.password = password
+	d.dbName = dbName
+}
 
-	// Open a connection to the database
-	db, err := sql.Open("mysql", connectionString)
-	if err != nil {
-		return nil, err
-	}
+func (d *database) connectMysql() error {
+	var err error
+	d.db, err = sql.Open("mysql", d.username+":"+d.password+"@tcp("+d.host+":"+d.port+")/"+d.dbName)
+	return err
+}
 
-	// Ping the database to verify the connection
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
+func (d *database) disconnectMysql() error {
+	return d.db.Close()
+}
 
-	return db, nil
+func (d *database) isConnected() bool {
+	return d.db.Ping() == nil
 }
