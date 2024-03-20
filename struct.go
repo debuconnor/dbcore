@@ -42,3 +42,17 @@ type orderBy struct {
 	column string
 	order  string
 }
+
+type Schema struct {
+	tableAction     string
+	tableName       string
+	columnAction    string
+	columns         []string
+	revisedColumns  []string
+	varType         []string
+	isNull          []bool
+	isPk            []bool
+	isAutoIncrement []bool
+	defaultVal      []string
+	comment         []string
+}

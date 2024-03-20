@@ -24,9 +24,17 @@ type Dml interface {
 }
 
 type Ddl interface {
-	CreateTable() error
-	AlterTable() error
-	DropTable() error
+	CreateTable(string)
+	AlterTable(string)
+	DropTable(string)
+	AddColumn(string, string, bool, bool, bool, string, string)
+	DropColumn(string)
+	ChangeColumn(string, string, string, string, string)
+	SetColumnDefault(string, string)
+	Execute(Database)
+	Clear()
+	buildQuery() string
+	GetQueryString() string
 }
 
 type Connection interface {
