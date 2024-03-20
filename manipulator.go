@@ -84,6 +84,10 @@ func (q *MainQuery) OrderBy(column string, order string) {
 	}
 }
 
+func (q *MainQuery) Limit(limit int) {
+	q.limit = limit
+}
+
 func (q MainQuery) Execute(d Database) (result []map[string]string) {
 	rows, _ := d.db.Query(q.buildQuery())
 	defer rows.Close()
@@ -123,6 +127,7 @@ func (q *MainQuery) Clear() {
 	q.having = []condition{}
 	q.orderBy = []orderBy{}
 	q.insertValues = [][]string{}
+	q.limit = 0
 	q.buildQuery()
 }
 
@@ -200,6 +205,10 @@ func (q MainQuery) buildQuery() (query string) {
 				}
 			}
 		}
+
+		if q.limit > 0 {
+			query += " LIMIT " + fmt.Sprintf("%v", q.limit)
+		}
 	} else if q.action == "INSERT" {
 		query += "INTO " + q.tableName
 
@@ -256,5 +265,5 @@ func checkOperator(operator string) bool {
 }
 
 func isValidQuery(q string) bool {
-	return strings.Count(q, ";") <= 1
+	return strings.Count(q, ";") == 0
 }

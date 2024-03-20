@@ -23,6 +23,7 @@ type MainQuery struct {
 	having        []condition
 	orderBy       []orderBy
 	insertValues  [][]string
+	limit         int
 }
 
 type joinCondition struct {

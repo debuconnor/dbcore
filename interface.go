@@ -17,6 +17,7 @@ type Dml interface {
 	GroupBy([]string)
 	Having(string, string, string, string)
 	OrderBy(string, string)
+	Limit(int)
 	Execute(Database) []map[string]string
 	Clear()
 	buildQuery() string
