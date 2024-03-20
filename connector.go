@@ -6,6 +6,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+func NewDb() Connection {
+	return &Database{}
+}
+
 func (d *Database) SetConnection(host, port, username, password, dbName string) {
 	d.host = host
 	d.port = port

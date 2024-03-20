@@ -5,31 +5,13 @@ import (
 	"strings"
 )
 
-func checkOperator(operator string) bool {
-	switch operator {
-	case "=", "!=", ">", "<", ">=", "<=", "LIKE", "NOT LIKE", "IN", "NOT IN", "BETWEEN", "NOT BETWEEN":
-		return true
-	}
-	return false
+func NewDml() Dml {
+	return &MainQuery{}
 }
 
-func isValidQuery(q string) bool {
-	return strings.Count(q, ";") <= 1
-}
-
-func (q *MainQuery) Clear() {
-	q.action = ""
-	q.columns = []string{}
-	q.tableName = ""
-	q.joinType = []string{}
-	q.joinTables = []string{}
-	q.joinCondition = []joinCondition{}
-	q.conditions = []condition{}
-	q.groupBy = []string{}
-	q.having = []condition{}
-	q.orderBy = []orderBy{}
-	q.insertValues = [][]string{}
-	q.buildQuery()
+func (q *MainQuery) SelectAll() {
+	q.action = "SELECT"
+	q.columns = []string{"*"}
 }
 
 func (q *MainQuery) SelectColumns(columns []string) {
@@ -40,11 +22,6 @@ func (q *MainQuery) SelectColumns(columns []string) {
 func (q *MainQuery) SelectColumn(column string) {
 	q.action = "SELECT"
 	q.columns = append(q.columns, column)
-}
-
-func (q *MainQuery) SelectAll() {
-	q.action = "SELECT"
-	q.columns = []string{"*"}
 }
 
 func (q *MainQuery) Insert() {
@@ -105,6 +82,48 @@ func (q *MainQuery) OrderBy(column string, order string) {
 	if order == "ASC" || order == "asc" || order == "DESC" || order == "desc" {
 		q.orderBy = append(q.orderBy, orderBy{column, order})
 	}
+}
+
+func (q MainQuery) Execute(d Database) (result []map[string]string) {
+	rows, _ := d.db.Query(q.buildQuery())
+	defer rows.Close()
+
+	cols, _ := rows.Columns()
+
+	for rows.Next() {
+		columns := make([]string, len(cols))
+		columnPointers := make([]interface{}, len(cols))
+		data := make(map[string]string)
+
+		for i := range columns {
+			columnPointers[i] = &columns[i]
+		}
+
+		_ = rows.Scan(columnPointers...)
+
+		for i, colName := range cols {
+			data[colName] = columns[i]
+		}
+
+		result = append(result, data)
+	}
+
+	return result
+}
+
+func (q *MainQuery) Clear() {
+	q.action = ""
+	q.columns = []string{}
+	q.tableName = ""
+	q.joinType = []string{}
+	q.joinTables = []string{}
+	q.joinCondition = []joinCondition{}
+	q.conditions = []condition{}
+	q.groupBy = []string{}
+	q.having = []condition{}
+	q.orderBy = []orderBy{}
+	q.insertValues = [][]string{}
+	q.buildQuery()
 }
 
 func (q MainQuery) buildQuery() (query string) {
@@ -228,29 +247,14 @@ func (q MainQuery) GetQueryString() string {
 	return q.buildQuery()
 }
 
-func (q MainQuery) Execute(d Database) (result []map[string]string) {
-	rows, _ := d.db.Query(q.buildQuery())
-	defer rows.Close()
-
-	cols, _ := rows.Columns()
-
-	for rows.Next() {
-		columns := make([]string, len(cols))
-		columnPointers := make([]interface{}, len(cols))
-		data := make(map[string]string)
-
-		for i := range columns {
-			columnPointers[i] = &columns[i]
-		}
-
-		_ = rows.Scan(columnPointers...)
-
-		for i, colName := range cols {
-			data[colName] = columns[i]
-		}
-
-		result = append(result, data)
+func checkOperator(operator string) bool {
+	switch operator {
+	case "=", "!=", ">", "<", ">=", "<=", "LIKE", "NOT LIKE", "IN", "NOT IN", "BETWEEN", "NOT BETWEEN":
+		return true
 	}
+	return false
+}
 
-	return result
+func isValidQuery(q string) bool {
+	return strings.Count(q, ";") <= 1
 }

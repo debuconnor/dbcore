@@ -1,8 +1,9 @@
 package dbcore
 
 type Dml interface {
-	SelectColumns([]string)
 	SelectAll()
+	SelectColumns([]string)
+	SelectColumn(string)
 	Insert()
 	Update(string)
 	Delete()
@@ -16,9 +17,9 @@ type Dml interface {
 	GroupBy([]string)
 	Having(string, string, string, string)
 	OrderBy(string, string)
-	buildQuery() string
-	Execute() []map[string]string
+	Execute(Database) []map[string]string
 	Clear()
+	buildQuery() string
 	GetQueryString() string
 }
 
