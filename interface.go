@@ -5,11 +5,12 @@ type dml interface {
 	From(string)
 	Join(string, string)
 	On(string, string, string)
-	Where([]condition)
+	Where(string, string, string)
 	GroupBy([]string)
-	Having([]condition)
+	Having(string, string, string)
 	OrderBy([]string, string)
 	buildQuery() string
+	Execute(Database) []map[string]interface{}
 }
 
 type ddl interface {

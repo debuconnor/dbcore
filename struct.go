@@ -2,7 +2,7 @@ package dbcore
 
 import "database/sql"
 
-type database struct {
+type Database struct {
 	db       *sql.DB
 	host     string
 	port     string
@@ -11,7 +11,7 @@ type database struct {
 	dbName   string
 }
 
-type mainQuery struct {
+type MainQuery struct {
 	columns       []string
 	tableName     string
 	joinType      []string
@@ -30,6 +30,7 @@ type joinCondition struct {
 }
 
 type condition struct {
+	joint    string
 	column   string
 	operator string
 	value    interface{}
@@ -38,10 +39,4 @@ type condition struct {
 type orderBy struct {
 	column string
 	order  string
-}
-
-type queryResult struct {
-	queryString  string
-	rowsAffected int64
-	rowCount     int64
 }
