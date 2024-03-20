@@ -12,6 +12,7 @@ type Database struct {
 }
 
 type MainQuery struct {
+	action        string
 	columns       []string
 	tableName     string
 	joinType      []string
@@ -21,6 +22,7 @@ type MainQuery struct {
 	groupBy       []string
 	having        []condition
 	orderBy       []orderBy
+	insertValues  [][]string
 }
 
 type joinCondition struct {

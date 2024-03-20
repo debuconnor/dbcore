@@ -24,6 +24,10 @@ func (d *Database) DisconnectMysql() {
 	d.db.Close()
 }
 
-func (d Database) IsConnected() bool {
+func (d *Database) IsConnected() bool {
 	return d.db.Ping() == nil
+}
+
+func (d Database) GetDb() Database {
+	return d
 }

@@ -1,27 +1,37 @@
 package dbcore
 
-type dml interface {
+type Dml interface {
 	SelectColumns([]string)
+	SelectAll()
+	Insert()
+	Update(string)
+	Delete()
 	From(string)
+	Into(string)
+	Value(string, string)
+	Set(string, string)
 	Join(string, string)
 	On(string, string, string)
-	Where(string, string, string)
+	Where(string, string, string, string)
 	GroupBy([]string)
-	Having(string, string, string)
-	OrderBy([]string, string)
+	Having(string, string, string, string)
+	OrderBy(string, string)
 	buildQuery() string
-	Execute(Database) []map[string]interface{}
+	Execute() []map[string]string
+	Clear()
+	GetQueryString() string
 }
 
-type ddl interface {
+type Ddl interface {
 	CreateTable() error
 	AlterTable() error
 	DropTable() error
 }
 
-type connection interface {
-	setConnection(host, port, username, password, dbName string)
-	connectMysql() error
-	disconnectMysql() error
-	isConnected() bool
+type Connection interface {
+	SetConnection(string, string, string, string, string)
+	ConnectMysql() error
+	DisconnectMysql()
+	IsConnected() bool
+	GetDb() Database
 }
