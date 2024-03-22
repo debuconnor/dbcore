@@ -25,6 +25,7 @@ type Dml interface {
 }
 
 type Ddl interface {
+	CheckTableExists(Database, string) bool
 	CreateTable(string)
 	AlterTable(string)
 	DropTable(string)

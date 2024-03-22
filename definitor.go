@@ -4,6 +4,21 @@ func NewDdl() Ddl {
 	return &Schema{}
 }
 
+func (s *Schema) CheckTableExists(d Database, tableName string) bool {
+	s.tableAction = "SHOW TABLES LIKE "
+	s.tableName = tableName
+	query := s.tableAction + "'" + s.tableName + "'"
+
+	rows, _ := d.db.Query(query)
+	defer rows.Close()
+
+	for rows.Next() {
+		return true
+	}
+
+	return false
+}
+
 func (s *Schema) CreateTable(tableName string) {
 	s.tableAction = "CREATE TABLE"
 	s.tableName = tableName
