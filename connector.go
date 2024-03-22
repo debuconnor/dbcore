@@ -18,14 +18,21 @@ func (d *Database) SetConnection(host, port, username, password, dbName string) 
 	d.dbName = dbName
 }
 
-func (d *Database) ConnectMysql() error {
+func (d *Database) ConnectMysql() {
+	Log("Connecting to MySQL...")
 	var err error
 	d.db, err = sql.Open("mysql", d.username+":"+d.password+"@tcp("+d.host+":"+d.port+")/"+d.dbName)
-	return err
+
+	if err != nil {
+		Log("Error while connecting to MySQL.")
+	} else {
+		Log("Connected to MySQL.")
+	}
 }
 
 func (d *Database) DisconnectMysql() {
 	d.db.Close()
+	Log("Disconnected from MySQL.")
 }
 
 func (d *Database) IsConnected() bool {

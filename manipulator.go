@@ -89,11 +89,19 @@ func (q *MainQuery) Limit(limit int) {
 }
 
 func (q MainQuery) Execute(d Database) (result []map[string]string) {
-	rows, _ := d.db.Query(q.buildQuery())
+	Log("Run query...")
+	query := q.buildQuery()
+
+	if query == "" {
+		return
+	}
+
+	rows, _ := d.db.Query(query)
 	defer rows.Close()
 
 	cols, _ := rows.Columns()
 
+	Log("Retrive data...")
 	for rows.Next() {
 		columns := make([]string, len(cols))
 		columnPointers := make([]interface{}, len(cols))
@@ -132,6 +140,7 @@ func (q *MainQuery) Clear() {
 }
 
 func (q MainQuery) buildQuery() (query string) {
+	Log("Building query...")
 	query = q.action + " "
 
 	if q.action == "SELECT" {
@@ -247,6 +256,7 @@ func (q MainQuery) buildQuery() (query string) {
 
 	if !isValidQuery(query) {
 		query = ""
+		Log("Invalid query. Exiting...")
 	}
 
 	return

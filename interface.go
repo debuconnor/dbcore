@@ -41,7 +41,7 @@ type Ddl interface {
 
 type Connection interface {
 	SetConnection(string, string, string, string, string)
-	ConnectMysql() error
+	ConnectMysql()
 	DisconnectMysql()
 	IsConnected() bool
 	GetDb() Database
