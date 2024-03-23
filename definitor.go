@@ -103,9 +103,6 @@ func (s Schema) buildQuery() (query string) {
 			} else {
 				query += " NOT NULL"
 			}
-			if s.isPk[i] {
-				query += " PRIMARY KEY"
-			}
 			if s.isAutoIncrement[i] {
 				query += " AUTO_INCREMENT"
 			}
@@ -117,8 +114,14 @@ func (s Schema) buildQuery() (query string) {
 			}
 			query += ", "
 		}
+		query += "PRIMARY KEY ("
+		for i := 0; i < len(s.columns); i++ {
+			if s.isPk[i] {
+				query += s.columns[i] + ", "
+			}
+		}
 		query = query[:len(query)-2]
-		query += ")"
+		query += "))"
 
 	case "ALTER TABLE":
 		query = "ALTER TABLE " + s.tableName + " "
