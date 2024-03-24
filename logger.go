@@ -2,7 +2,10 @@ package dbcore
 
 import "log"
 
-func Log(msg string) {
-	msg = "DBCORE: " + msg
-	log.Println(msg)
+func Log(msg ...interface{}) {
+	if !IS_DEBUG {
+		return
+	}
+	msg = append([]interface{}{"DBCORE: "}, msg...)
+	log.Println(msg...)
 }
