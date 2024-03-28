@@ -37,7 +37,7 @@ func SaveLog(filename string, msg ...interface{}) {
 		return
 	}
 	defer file.Close()
-	msg = append([]interface{}{"DBCORE: "}, msg...)
+
 	log.SetOutput(file)
 	log.Println(msg...)
 
