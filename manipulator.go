@@ -89,6 +89,9 @@ func (q *MainQuery) Limit(limit int) {
 }
 
 func (q MainQuery) Execute(d Database) (result []map[string]string) {
+	for !d.IsConnected() {
+	}
+
 	SaveLog("", "Run query... : ", q.action)
 	query := q.buildQuery()
 

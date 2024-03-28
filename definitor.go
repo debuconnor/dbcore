@@ -68,6 +68,8 @@ func (s *Schema) SetColumnDefault(columnName string, defaultVal string) {
 }
 
 func (s Schema) Execute(d Database) {
+	for !d.IsConnected() {
+	}
 	SaveLog("", "Run query... :", s.tableAction)
 	query := s.buildQuery()
 	_, err := d.db.Exec(query)
