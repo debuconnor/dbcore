@@ -5,7 +5,7 @@ func NewDdl() Ddl {
 }
 
 func (s *Schema) CheckTableExists(d Database, tableName string) bool {
-	Log("Checking if schema exists...")
+	SaveLog("", "Checking if schema exists...")
 	s.tableAction = "SHOW TABLES LIKE "
 	s.tableName = tableName
 	query := s.tableAction + "'" + s.tableName + "'"
@@ -14,11 +14,11 @@ func (s *Schema) CheckTableExists(d Database, tableName string) bool {
 	defer rows.Close()
 
 	for rows.Next() {
-		Log("Schema found.")
+		SaveLog("", "Schema found.")
 		return true
 	}
 
-	Log("Schema not found.")
+	SaveLog("", "Schema not found.")
 	return false
 }
 
@@ -68,12 +68,12 @@ func (s *Schema) SetColumnDefault(columnName string, defaultVal string) {
 }
 
 func (s Schema) Execute(d Database) {
-	Log("Run query...")
+	SaveLog("", "Run query... :", s.tableAction)
 	query := s.buildQuery()
 	_, err := d.db.Exec(query)
 
 	if err != nil {
-		Log("Error while executing query.")
+		SaveLog("", "Error while executing query.")
 	}
 }
 
@@ -92,7 +92,7 @@ func (s *Schema) Clear() {
 }
 
 func (s Schema) buildQuery() (query string) {
-	Log("Building query...")
+	SaveLog("", "Building query...")
 	switch s.tableAction {
 	case "CREATE TABLE":
 		query = "CREATE TABLE " + s.tableName + " ("
@@ -143,7 +143,7 @@ func (s Schema) buildQuery() (query string) {
 
 	if !isValidQuery(query) {
 		query = ""
-		Log("Invalid query. Exiting...")
+		SaveLog("", "Invalid query. Exiting...")
 	}
 
 	return query

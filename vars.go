@@ -1,9 +1,9 @@
 package dbcore
 
-var (
-	IS_DEBUG = false
+const (
+	ERROR_CODE_DB_CONNECTION_FAILED        = 100
+	ERROR_CODE_CREATE_SECRETMANAGER_CLIENT = 101
+	ERROR_CODE_ACCESS_SECRET_VERSION       = 102
+	ERROR_CODE_DATA_CORRUPTION             = 103
+	ERROR_CODE_PARSE_JSON                  = 104
 )
-
-func SetDebug(mode bool) {
-	IS_DEBUG = mode
-}
