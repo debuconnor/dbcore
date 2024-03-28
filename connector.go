@@ -18,21 +18,28 @@ func (d *Database) SetConnection(host, port, username, password, dbName string) 
 	d.dbName = dbName
 }
 
+func (d *Database) SetConnectionFromGcpSecret(secretVersion string) {
+	resultJson := accessSecretVersion(secretVersion)
+	dbInfo := parseJson(resultJson)
+
+	d.SetConnection(dbInfo["host"].(string), dbInfo["port"].(string), dbInfo["username"].(string), dbInfo["password"].(string), dbInfo["dbname"].(string))
+}
+
 func (d *Database) ConnectMysql() {
-	Log("Connecting to MySQL...")
+	SaveLog("", "Connecting to MySQL...")
 	var err error
 	d.db, err = sql.Open("mysql", d.username+":"+d.password+"@tcp("+d.host+":"+d.port+")/"+d.dbName)
 
 	if err != nil {
-		Log("Error while connecting to MySQL.")
+		SaveLog("", "Error while connecting to MySQL.")
 	} else {
-		Log("Connected to MySQL.")
+		SaveLog("", "Connected to MySQL.")
 	}
 }
 
 func (d *Database) DisconnectMysql() {
 	d.db.Close()
-	Log("Disconnected from MySQL.")
+	SaveLog("", "Disconnected from MySQL.")
 }
 
 func (d *Database) IsConnected() bool {

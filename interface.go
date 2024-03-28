@@ -41,6 +41,7 @@ type Ddl interface {
 
 type Connection interface {
 	SetConnection(string, string, string, string, string)
+	SetConnectionFromGcpSecret(string)
 	ConnectMysql()
 	DisconnectMysql()
 	IsConnected() bool
