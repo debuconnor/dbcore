@@ -163,24 +163,7 @@ func (q MainQuery) buildQuery() (query string) {
 			query += " ON " + q.joinCondition[i].mainColumn + " " + q.joinCondition[i].operator + " " + q.joinCondition[i].joinColumn
 		}
 
-		if len(q.conditions) > 0 {
-			query += " WHERE "
-
-			for i := 0; i < len(q.conditions); i++ {
-				if i != 0 && i != len(q.conditions) {
-					query += " " + q.conditions[i].joint + " "
-				}
-
-				query += q.conditions[i].column + " " + q.conditions[i].operator + " "
-
-				switch q.conditions[i].operator {
-				case "IN", "NOT IN":
-					query += "('" + q.conditions[i].value.(string) + "')"
-				default:
-					query += "'" + q.conditions[i].value.(string) + "'"
-				}
-			}
-		}
+		query += queryWhere(q)
 
 		if len(q.groupBy) > 0 {
 			query += " GROUP BY "
@@ -249,9 +232,9 @@ func (q MainQuery) buildQuery() (query string) {
 			}
 		}
 	} else if q.action == "UPDATE" {
-		query += " " + q.tableName
+		query += q.tableName
 		query += " SET " + q.conditions[0].column + " = '" + q.conditions[0].value.(string) + "'"
-		query += " WHERE " + q.conditions[0].column + " = '" + q.conditions[0].value.(string) + "'"
+		query += queryWhere(q)
 	} else if q.action == "DELETE" {
 		query += " FROM " + q.tableName
 		query += " WHERE " + q.conditions[0].column + " = '" + q.conditions[0].value.(string) + "'"
@@ -279,4 +262,54 @@ func checkOperator(operator string) bool {
 
 func isValidQuery(q string) bool {
 	return strings.Count(q, ";") == 0
+}
+
+func queryWhere(q MainQuery) (query string) {
+	if len(q.conditions) > 0 {
+		bracketOpen := true
+		query = " WHERE ("
+		nextJoint := ""
+		start := 0
+
+		if q.action == "UPDATE" {
+			start = 1
+		}
+
+		for i := start; i < len(q.conditions); i++ {
+			if q.action == "UPDATE" && i == 0 {
+				continue
+			}
+
+			if i != len(q.conditions)-1 {
+				nextJoint = q.conditions[i+1].joint
+			}
+
+			if i != start && i != len(q.conditions) {
+				query += " " + q.conditions[i].joint + " "
+			}
+
+			if (q.conditions[i].joint == "AND" && nextJoint == "OR") && i != start {
+				query += "("
+				bracketOpen = true
+			}
+
+			query += q.conditions[i].column + " " + q.conditions[i].operator + " "
+
+			switch q.conditions[i].operator {
+			case "IN", "NOT IN":
+				query += "('" + q.conditions[i].value.(string) + "')"
+			default:
+				query += "'" + q.conditions[i].value.(string) + "'"
+			}
+
+			if q.conditions[i].joint != "AND" && nextJoint == "AND" {
+				query += ")"
+				bracketOpen = false
+			}
+		}
+		if bracketOpen {
+			query += ")"
+		}
+	}
+	return query
 }
