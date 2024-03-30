@@ -2,6 +2,7 @@ package dbcore
 
 import (
 	"encoding/json"
+	"errors"
 )
 
 func parseJson(data string) map[string]interface{} {
@@ -11,6 +12,6 @@ func parseJson(data string) map[string]interface{} {
 		return jsonData
 	}
 
-	Error(ERROR_CODE_PARSE_JSON)
+	Error(errors.New(ERROR_CODE_PARSE_JSON))
 	return nil
 }
