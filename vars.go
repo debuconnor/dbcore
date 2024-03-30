@@ -1,6 +1,7 @@
 package dbcore
 
 const (
+	APP_NAME                               = "DBCORE"
 	ERROR_CODE_DB_CONNECTION_FAILED        = 100
 	ERROR_CODE_CREATE_SECRETMANAGER_CLIENT = 101
 	ERROR_CODE_ACCESS_SECRET_VERSION       = 102
