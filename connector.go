@@ -26,15 +26,15 @@ func (d *Database) SetConnectionFromGcpSecret(secretVersion string) {
 }
 
 func (d *Database) ConnectMysql() error {
-	SaveLog("", "Connecting to MySQL...")
+	Log("Connecting to MySQL...")
 	var err error
 	d.db, err = sql.Open("mysql", d.username+":"+d.password+"@tcp("+d.host+":"+d.port+")/"+d.dbName)
 
 	if err != nil {
-		SaveLog("", "Error while connecting to MySQL.")
+		Log("Error while connecting to MySQL.")
 		return err
 	} else {
-		SaveLog("", "Connected to MySQL.")
+		Log("Connected to MySQL.")
 	}
 
 	return nil
@@ -42,7 +42,7 @@ func (d *Database) ConnectMysql() error {
 
 func (d *Database) DisconnectMysql() {
 	d.db.Close()
-	SaveLog("", "Disconnected from MySQL.")
+	Log("Disconnected from MySQL.")
 }
 
 func (d *Database) IsConnected() bool {

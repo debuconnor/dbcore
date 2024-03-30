@@ -3,6 +3,7 @@ package dbcore
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 func NewDml() Dml {
@@ -89,22 +90,22 @@ func (q *MainQuery) Limit(limit int) {
 }
 
 func (q MainQuery) Execute(d Database) (result []map[string]string) {
-	for !d.IsConnected() {
-	}
-
-	SaveLog("", "Run query... : ", q.action)
+	Log("Run query... : ", q.action)
 	query := q.buildQuery()
 
 	if query == "" {
 		return
 	}
 
+	for !d.IsConnected() {
+		time.Sleep(100 * time.Millisecond)
+	}
 	rows, _ := d.db.Query(query)
 	defer rows.Close()
 
 	cols, _ := rows.Columns()
 
-	SaveLog("", "Retrive data...")
+	Log("Retrive data...")
 	for rows.Next() {
 		columns := make([]string, len(cols))
 		columnPointers := make([]interface{}, len(cols))
@@ -143,7 +144,7 @@ func (q *MainQuery) Clear() {
 }
 
 func (q MainQuery) buildQuery() (query string) {
-	SaveLog("", "Building query...")
+	Log("Building query...")
 	query = q.action + " "
 
 	if q.action == "SELECT" {
@@ -242,7 +243,7 @@ func (q MainQuery) buildQuery() (query string) {
 
 	if !isValidQuery(query) {
 		query = ""
-		SaveLog("", "Invalid query. Exiting...")
+		Log("Invalid query. Exiting...")
 	}
 
 	return

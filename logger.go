@@ -4,28 +4,40 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 )
 
 func Log(msg ...interface{}) {
-	debug_mode := getEnv("DEBUG_MODE")
-	if debug_mode != "true" {
-		return
+	msg = append([]interface{}{APP_NAME + ": "}, msg...)
+
+	if isDebugMode() {
+		SaveLog("", msg...)
+	} else {
+		log.Println(msg...)
 	}
-	msg = append([]interface{}{"DBCORE: "}, msg...)
-	log.Println(msg...)
+}
+
+func Error(err error) {
+	msg := append([]interface{}{"Error: "}, err)
+
+	if isDebugMode() {
+		SaveLog("error", msg)
+	}
+
+	panic(err)
 }
 
 func SaveLog(filename string, msg ...interface{}) {
 	path := "./log/"
 
 	if filename == "" {
-		filename = "database"
+		filename = "system"
 	}
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err := os.MkdirAll(path, os.ModePerm)
 		if err != nil {
-			Log("Failed to create path folder:", err)
+			log.Println("Failed to create path folder:", err)
 			return
 		}
 	}
@@ -33,19 +45,22 @@ func SaveLog(filename string, msg ...interface{}) {
 	filePath := filepath.Join(path, filename+".log")
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		Log("Failed to open error log file:", err)
+		log.Println("Failed to open error log file:", err)
 		return
 	}
 	defer file.Close()
 
 	log.SetOutput(file)
 	log.Println(msg...)
-
-	log.SetOutput(os.Stdout)
-	Log(msg...)
 }
 
-func Error(code int) {
-	SaveLog("Error: ", code)
-	Log("Error: ", code)
+func Recover() {
+	err := recover()
+	if err != nil {
+		log.Println("Recover from ", string(debug.Stack()))
+	}
+}
+
+func isDebugMode() bool {
+	return getEnv("DEBUG_MODE") == "true"
 }
