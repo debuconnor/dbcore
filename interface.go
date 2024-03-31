@@ -10,6 +10,7 @@ type Dml interface {
 	From(string)
 	Into(string)
 	Value(string, string)
+	Values([]string, ...string)
 	Set(string, string)
 	Join(string, string)
 	On(string, string, string)

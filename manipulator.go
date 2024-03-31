@@ -1,6 +1,7 @@
 package dbcore
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -47,7 +48,19 @@ func (q *MainQuery) Into(tableName string) {
 }
 
 func (q *MainQuery) Value(column string, value string) {
-	q.insertValues = append(q.insertValues, []string{column, value})
+	q.columns = append(q.columns, column)
+	if len(q.insertValues) == 0 {
+		q.insertValues = append(q.insertValues, []string{value})
+	} else {
+		q.insertValues[0] = append(q.insertValues[0], value)
+	}
+}
+
+func (q *MainQuery) Values(columns []string, values ...string) {
+	if len(columns) > 0 {
+		q.columns = columns
+	}
+	q.insertValues = append(q.insertValues, values)
 }
 
 func (q *MainQuery) Set(column string, value string) {
@@ -206,29 +219,41 @@ func (q MainQuery) buildQuery() (query string) {
 			query += " LIMIT " + fmt.Sprintf("%v", q.limit)
 		}
 	} else if q.action == "INSERT" {
+		if len(q.columns) != len(q.insertValues[0]) {
+			Error(errors.New(ERROR_INVALID_QUERY))
+		}
+
 		query += "INTO " + q.tableName
 
 		if len(q.insertValues) > 0 {
-			for i := 0; i < len(q.insertValues); i++ {
+			for i := 0; i < len(q.columns); i++ {
 				if i == 0 {
 					query += " ("
 				}
 
-				query += q.insertValues[i][0]
+				query += q.columns[i]
 
-				if i != len(q.insertValues)-1 {
+				if i != len(q.columns)-1 {
 					query += ", "
 				} else {
-					query += ") VALUES ("
+					query += ") VALUES "
 				}
 			}
 
-			for i := 0; i < len(q.insertValues); i++ {
-				query += "'" + q.insertValues[i][1] + "'"
-				if i != len(q.insertValues)-1 {
+			for i, insertValue := range q.insertValues {
+				query += "("
+
+				for j, value := range insertValue {
+					query += "'" + value + "'"
+					if j < len(insertValue)-1 {
+						query += ", "
+					} else {
+						query += ")"
+					}
+				}
+
+				if i < len(q.insertValues)-1 {
 					query += ", "
-				} else {
-					query += ")"
 				}
 			}
 		}
@@ -243,7 +268,7 @@ func (q MainQuery) buildQuery() (query string) {
 
 	if !isValidQuery(query) {
 		query = ""
-		Log("Invalid query. Exiting...")
+		Error(errors.New(ERROR_INVALID_QUERY))
 	}
 
 	return

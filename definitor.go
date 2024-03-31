@@ -101,7 +101,7 @@ func (s Schema) buildQuery() (query string) {
 	Log("Building query...")
 	switch s.tableAction {
 	case "CREATE TABLE":
-		query = "CREATE TABLE " + s.tableName + " ("
+		query = "CREATE TABLE IF NOT EXISTS " + s.tableName + " ("
 		for i := 0; i < len(s.columns); i++ {
 			query += s.columns[i] + " " + s.varType[i]
 			if s.isNull[i] {
@@ -130,7 +130,7 @@ func (s Schema) buildQuery() (query string) {
 		query += "))"
 
 	case "ALTER TABLE":
-		query = "ALTER TABLE " + s.tableName + " "
+		query = "ALTER TABLE IF EXISTS " + s.tableName + " "
 		switch s.columnAction {
 		case "DROP COLUMN":
 			query += "DROP COLUMN " + s.tableName
@@ -144,7 +144,7 @@ func (s Schema) buildQuery() (query string) {
 		}
 
 	case "DROP TABLE":
-		query = "DROP TABLE " + s.tableName
+		query = "DROP TABLE IF EXISTS " + s.tableName
 	}
 
 	if !isValidQuery(query) {
