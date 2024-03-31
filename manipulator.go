@@ -113,12 +113,19 @@ func (q MainQuery) Execute(d Database) (result []map[string]string) {
 	for !d.IsConnected() {
 		time.Sleep(100 * time.Millisecond)
 	}
-	rows, _ := d.db.Query(query)
+	rows, err := d.db.Query(query)
+	if err != nil {
+		Error(err)
+		return
+	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		Error(err)
+		return
+	}
 
-	Log("Retrive data...")
 	for rows.Next() {
 		columns := make([]string, len(cols))
 		columnPointers := make([]interface{}, len(cols))
@@ -157,7 +164,6 @@ func (q *MainQuery) Clear() {
 }
 
 func (q MainQuery) buildQuery() (query string) {
-	Log("Building query...")
 	query = q.action + " "
 
 	if q.action == "SELECT" {
