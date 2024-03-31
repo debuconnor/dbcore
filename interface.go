@@ -4,6 +4,7 @@ type Dml interface {
 	SelectAll()
 	SelectColumns([]string)
 	SelectColumn(string)
+	SelectFunction(string, ...string)
 	Insert()
 	Update(string)
 	Delete()

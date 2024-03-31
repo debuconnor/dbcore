@@ -1,13 +1,15 @@
 package dbcore
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 func NewDdl() Ddl {
 	return &Schema{}
 }
 
 func (s *Schema) CheckTableExists(d Database, tableName string) bool {
-	Log("Checking if schema exists...")
 	s.tableAction = "SHOW TABLES LIKE "
 	s.tableName = tableName
 	query := s.tableAction + "'" + s.tableName + "'"
@@ -16,11 +18,9 @@ func (s *Schema) CheckTableExists(d Database, tableName string) bool {
 	defer rows.Close()
 
 	for rows.Next() {
-		Log("Schema found.")
 		return true
 	}
 
-	Log("Schema not found.")
 	return false
 }
 
@@ -70,8 +70,6 @@ func (s *Schema) SetColumnDefault(columnName string, defaultVal string) {
 }
 
 func (s Schema) Execute(d Database) {
-	Log("Run query... :", s.tableAction)
-
 	for !d.IsConnected() {
 		time.Sleep(100 * time.Millisecond)
 	}
@@ -79,7 +77,7 @@ func (s Schema) Execute(d Database) {
 	_, err := d.db.Exec(query)
 
 	if err != nil {
-		Log("Error while executing query.")
+		Error(errors.New(ERROR_EXECUTING_QUERY))
 	}
 }
 
@@ -98,7 +96,6 @@ func (s *Schema) Clear() {
 }
 
 func (s Schema) buildQuery() (query string) {
-	Log("Building query...")
 	switch s.tableAction {
 	case "CREATE TABLE":
 		query = "CREATE TABLE IF NOT EXISTS " + s.tableName + " ("
@@ -149,7 +146,7 @@ func (s Schema) buildQuery() (query string) {
 
 	if !isValidQuery(query) {
 		query = ""
-		Log("Invalid query. Exiting...")
+		Error(errors.New(ERROR_INVALID_QUERY))
 	}
 
 	return query

@@ -9,4 +9,5 @@ const (
 	ERROR_DATA_CORRUPTION             = "Secret data corruption."
 	ERROR_PARSE_JSON                  = "Failed to parse JSON."
 	ERROR_INVALID_QUERY               = "Invalid query."
+	ERROR_EXECUTING_QUERY             = "Failed to execute query."
 )

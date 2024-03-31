@@ -3,6 +3,7 @@ package dbcore
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -23,6 +24,25 @@ func (q *MainQuery) SelectColumns(columns []string) {
 
 func (q *MainQuery) SelectColumn(column string) {
 	q.action = "SELECT"
+	q.columns = append(q.columns, column)
+}
+
+func (q *MainQuery) SelectFunction(function string, params ...string) {
+	q.action = "SELECT"
+	column := function + "("
+	for _, param := range params {
+		_, err := strconv.Atoi(param)
+		if err != nil {
+			column += "'" + param + "'"
+		} else {
+			column += param
+		}
+		if param != params[len(params)-1] {
+			column += ", "
+		} else {
+			column += ")"
+		}
+	}
 	q.columns = append(q.columns, column)
 }
 
@@ -109,7 +129,6 @@ func (q *MainQuery) Limit(limit int) {
 }
 
 func (q MainQuery) Execute(d Database) (result []map[string]string) {
-	Log("Run query... : ", q.action)
 	query := q.buildQuery()
 
 	if query == "" {
@@ -175,6 +194,12 @@ func (q MainQuery) buildQuery() (query string) {
 	if q.action == "SELECT" {
 		for i := 0; i < len(q.columns); i++ {
 			query += q.columns[i]
+
+			if q.columns[i] != "*" {
+				as := strings.Split(q.columns[i], "(")
+				query += " AS " + as[0]
+			}
+
 			if i != len(q.columns)-1 {
 				query += ", "
 			}
