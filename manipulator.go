@@ -76,9 +76,15 @@ func (q *MainQuery) On(mainColumn string, joinColumn string, operator string) {
 	q.joinCondition = append(q.joinCondition, joinCondition{mainColumn, joinColumn, operator})
 }
 
-func (q *MainQuery) Where(joint string, column string, operator string, value string) {
+func (q *MainQuery) Where(joint string, column string, operator string, value ...string) {
 	if checkOperator(operator) {
-		q.conditions = append(q.conditions, condition{joint, column, operator, value})
+		if operator == "IN" || operator == "NOT IN" {
+			q.conditions = append(q.conditions,
+				condition{joint, column, operator, strings.Join(value, ",")})
+		} else {
+			q.conditions = append(q.conditions,
+				condition{joint, column, operator, value[0]})
+		}
 	}
 }
 
@@ -329,7 +335,15 @@ func queryWhere(q MainQuery) (query string) {
 
 			switch q.conditions[i].operator {
 			case "IN", "NOT IN":
-				query += "('" + q.conditions[i].value.(string) + "')"
+				values := strings.Split(q.conditions[i].value.(string), ",")
+				query += "("
+				for j, value := range values {
+					query += "'" + value + "'"
+					if j != len(values)-1 {
+						query += ", "
+					}
+				}
+				query += ")"
 			default:
 				query += "'" + q.conditions[i].value.(string) + "'"
 			}

@@ -14,7 +14,7 @@ type Dml interface {
 	Set(string, string)
 	Join(string, string)
 	On(string, string, string)
-	Where(string, string, string, string)
+	Where(string, string, string, ...string)
 	GroupBy([]string)
 	Having(string, string, string, string)
 	OrderBy(string, string)
