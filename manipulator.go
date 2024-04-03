@@ -92,7 +92,7 @@ func (q *MainQuery) Join(joinType string, joinTables string) {
 	q.joinTables = append(q.joinTables, joinTables)
 }
 
-func (q *MainQuery) On(mainColumn string, joinColumn string, operator string) {
+func (q *MainQuery) On(mainColumn string, operator string, joinColumn string) {
 	q.joinCondition = append(q.joinCondition, joinCondition{mainColumn, joinColumn, operator})
 }
 
@@ -211,7 +211,7 @@ func (q MainQuery) buildQuery() (query string) {
 
 		for i := 0; i < len(q.joinType); i++ {
 			query += " " + q.joinType[i] + " " + q.joinTables[i]
-			query += " ON " + q.joinCondition[i].mainColumn + " " + q.joinCondition[i].operator + " " + q.joinCondition[i].joinColumn
+			query += " ON " + q.tableName + "." + q.joinCondition[i].mainColumn + " " + q.joinCondition[i].operator + " " + q.joinTables[i] + "." + q.joinCondition[i].joinColumn
 		}
 
 		query += queryWhere(q)
