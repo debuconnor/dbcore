@@ -19,6 +19,9 @@ const (
 	NOT_BETWEEN        = "NOT BETWEEN"
 	AND                = "AND"
 	OR                 = "OR"
+	INNER_JOIN         = "INNER JOIN"
+	LEFT_JOIN          = "LEFT JOIN"
+	RIGHT_JOIN         = "RIGHT JOIN"
 
 	ERROR_DB_CONNECTION_FAILED        = "Failed to connect to database."
 	ERROR_CREATE_SECRETMANAGER_CLIENT = "Failed to create SecretManager client."
