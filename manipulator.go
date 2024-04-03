@@ -98,7 +98,7 @@ func (q *MainQuery) On(mainColumn string, joinColumn string, operator string) {
 
 func (q *MainQuery) Where(joint string, column string, operator string, value ...string) {
 	if checkOperator(operator) {
-		if operator == "IN" || operator == "NOT IN" {
+		if operator == IN || operator == NOT_IN {
 			q.conditions = append(q.conditions,
 				condition{joint, column, operator, strings.Join(value, ",")})
 		} else {
@@ -119,7 +119,7 @@ func (q *MainQuery) Having(joint string, column string, operator string, value s
 }
 
 func (q *MainQuery) OrderBy(column string, order string) {
-	if order == "ASC" || order == "asc" || order == "DESC" || order == "desc" {
+	if order == ORDER_ASC || order == ORDER_DESC {
 		q.orderBy = append(q.orderBy, orderBy{column, order})
 	}
 }
@@ -317,7 +317,7 @@ func (q MainQuery) GetQueryString() string {
 
 func checkOperator(operator string) bool {
 	switch operator {
-	case "=", "!=", ">", "<", ">=", "<=", "LIKE", "NOT LIKE", "IN", "NOT IN", "BETWEEN", "NOT BETWEEN":
+	case EQUAL, NOT_EQUAL, GREATER_THAN, LESS_THAN, GREATER_THAN_EQUAL, LESS_THAN_EQUAL, LIKE, NOT_LIKE, IN, NOT_IN, BETWEEN, NOT_BETWEEN:
 		return true
 	}
 	return false
@@ -351,7 +351,7 @@ func queryWhere(q MainQuery) (query string) {
 				query += " " + q.conditions[i].joint + " "
 			}
 
-			if (q.conditions[i].joint == "AND" && nextJoint == "OR") && i != start {
+			if (q.conditions[i].joint == AND && nextJoint == OR) && i != start {
 				query += "("
 				bracketOpen = true
 			}
@@ -359,7 +359,7 @@ func queryWhere(q MainQuery) (query string) {
 			query += q.conditions[i].column + " " + q.conditions[i].operator + " "
 
 			switch q.conditions[i].operator {
-			case "IN", "NOT IN":
+			case IN, NOT_IN:
 				values := strings.Split(q.conditions[i].value.(string), ",")
 				query += "("
 				for j, value := range values {
@@ -373,7 +373,7 @@ func queryWhere(q MainQuery) (query string) {
 				query += "'" + q.conditions[i].value.(string) + "'"
 			}
 
-			if q.conditions[i].joint != "AND" && nextJoint == "AND" {
+			if q.conditions[i].joint != AND && nextJoint == AND {
 				query += ")"
 				bracketOpen = false
 			}
