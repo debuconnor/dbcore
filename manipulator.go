@@ -84,7 +84,12 @@ func (q *MainQuery) Values(columns []string, values ...string) {
 }
 
 func (q *MainQuery) Set(column string, value string) {
-	q.conditions = append(q.conditions, condition{"", column, "=", value})
+	q.columns = append(q.columns, column)
+	if len(q.insertValues) == 0 {
+		q.insertValues = append(q.insertValues, []string{value})
+	} else {
+		q.insertValues[0] = append(q.insertValues[0], value)
+	}
 }
 
 func (q *MainQuery) Join(joinType string, joinTables string) {
@@ -296,7 +301,13 @@ func (q MainQuery) buildQuery() (query string) {
 		}
 	} else if q.action == "UPDATE" {
 		query += q.tableName
-		query += " SET " + q.conditions[0].column + " = '" + q.conditions[0].value.(string) + "'"
+		query += " SET "
+		for i, column := range q.columns {
+			query += column + " = '" + q.insertValues[0][i] + "'"
+			if i != len(q.columns)-1 {
+				query += ", "
+			}
+		}
 		query += queryWhere(q)
 	} else if q.action == "DELETE" {
 		query += " FROM " + q.tableName
@@ -334,15 +345,7 @@ func queryWhere(q MainQuery) (query string) {
 		nextJoint := ""
 		start := 0
 
-		if q.action == "UPDATE" {
-			start = 1
-		}
-
 		for i := start; i < len(q.conditions); i++ {
-			if q.action == "UPDATE" && i == 0 {
-				continue
-			}
-
 			if i != len(q.conditions)-1 {
 				nextJoint = q.conditions[i+1].joint
 			}
