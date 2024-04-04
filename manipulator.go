@@ -300,7 +300,7 @@ func (q MainQuery) buildQuery() (query string) {
 		query += queryWhere(q)
 	} else if q.action == "DELETE" {
 		query += " FROM " + q.tableName
-		query += " WHERE " + q.conditions[0].column + " = '" + q.conditions[0].value.(string) + "'"
+		query += queryWhere(q)
 	}
 
 	if !isValidQuery(query) {
