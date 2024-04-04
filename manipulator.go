@@ -201,8 +201,8 @@ func (q MainQuery) buildQuery() (query string) {
 			query += q.columns[i]
 
 			if q.columns[i] != "*" {
-				as := strings.Split(q.columns[i], "(")
-				query += " AS " + as[0]
+				as := strings.Split(q.columns[i], ".")
+				query += " AS " + as[len(as)-1]
 			}
 
 			if i != len(q.columns)-1 {
