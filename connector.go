@@ -34,9 +34,13 @@ func (d *Database) ConnectMysql() error {
 	if err != nil {
 		Log("Error while connecting to MySQL.")
 		return err
-	} else {
+	}
+
+	if d.IsConnected() {
 		Log("Connected to MySQL.")
 		d.platform = "mysql"
+	} else {
+		Log("Failed to connect to MySQL.")
 	}
 
 	return nil
@@ -50,9 +54,13 @@ func (d *Database) ConnectMssql() error {
 	if err != nil {
 		Log("Error while connecting to MSSQL.")
 		return err
-	} else {
+	}
+
+	if d.IsConnected() {
 		Log("Connected to MSSQL.")
 		d.platform = "mssql"
+	} else {
+		Log("Failed to connect to MSSQL.")
 	}
 
 	return nil
