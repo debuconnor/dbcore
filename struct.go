@@ -9,6 +9,7 @@ type Database struct {
 	username string
 	password string
 	dbName   string
+	platform string
 }
 
 type MainQuery struct {

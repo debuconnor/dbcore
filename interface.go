@@ -45,7 +45,8 @@ type Connection interface {
 	SetConnection(string, string, string, string, string)
 	SetConnectionFromGcpSecret(string)
 	ConnectMysql() error
-	DisconnectMysql()
+	ConnectMssql() error
+	Disconnect()
 	IsConnected() bool
 	GetDb() Database
 }
