@@ -1,6 +1,7 @@
 package dbcore
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"strconv"
@@ -150,29 +151,7 @@ func (q MainQuery) Execute(d Database) (result []map[string]string) {
 	}
 	defer rows.Close()
 
-	cols, err := rows.Columns()
-	if err != nil {
-		Error(err)
-		return
-	}
-
-	for rows.Next() {
-		columns := make([]string, len(cols))
-		columnPointers := make([]interface{}, len(cols))
-		data := make(map[string]string)
-
-		for i := range columns {
-			columnPointers[i] = &columns[i]
-		}
-
-		_ = rows.Scan(columnPointers...)
-
-		for i, colName := range cols {
-			data[colName] = columns[i]
-		}
-
-		result = append(result, data)
-	}
+	result = retreiveResult(rows)
 
 	return result
 }
@@ -386,4 +365,51 @@ func queryWhere(q MainQuery) (query string) {
 		}
 	}
 	return query
+}
+
+func ExecuteQuery(d Database, query string) (result []map[string]string) {
+	for !d.IsConnected() {
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	if strings.HasPrefix(strings.ToUpper(query), "SELECT") && strings.Count(query, ";") <= 1 && query != "" {
+		rows, err := d.db.Query(query)
+		if err != nil {
+			Error(err)
+			return
+		}
+		defer rows.Close()
+
+		result = retreiveResult(rows)
+	}
+
+	return result
+}
+
+func retreiveResult(rows *sql.Rows) (result []map[string]string) {
+	cols, err := rows.Columns()
+	if err != nil {
+		Error(err)
+		return
+	}
+
+	for rows.Next() {
+		columns := make([]string, len(cols))
+		columnPointers := make([]interface{}, len(cols))
+		data := make(map[string]string)
+
+		for i := range columns {
+			columnPointers[i] = &columns[i]
+		}
+
+		_ = rows.Scan(columnPointers...)
+
+		for i, colName := range cols {
+			data[colName] = strings.TrimSpace(columns[i])
+		}
+
+		result = append(result, data)
+	}
+
+	return result
 }
